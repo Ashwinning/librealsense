@@ -2,7 +2,7 @@
 // Copyright(c) 2015 Intel Corporation. All Rights Reserved.
 
 #define GLFW_INCLUDE_GLU
-#include <GLFW/glfw3.h>
+#include <c:\Users\Ashwin\Documents\GitHub\librealsense\librealsense.vc12\packages\glfw.3.1.2\build\native\include\GLFW\glfw3.h>
 
 #include <sstream>
 #include <vector>

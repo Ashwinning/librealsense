@@ -55,16 +55,25 @@ int main() try
 		float scale = dev->get_depth_scale();
 		*/
 
-		// Retrieve image
+		
 		//Create pointers for depth and color
 		char * depthFile;
 		char * colorFile;
 		//Read File contents for depth and color.
 		ReadFileAndReturnBytes("D:\SXSW Hat Scans\capture-20160314-103304\depth\20160314-103305.dep", depthFile);
 		ReadFileAndReturnBytes("D:\SXSW Hat Scans\capture-20160314-103304\color\20160314-103305.color", colorFile);
-
+		
+		// Retrieve images
 		const uint16_t * depth_image = (const uint16_t *)depthFile;
 		const uint8_t * color_image = (const uint8_t *)colorFile;
+
+		/*
+		// Retrieve camera parameters for mapping between depth and color
+		rs::intrinsics depth_intrin = 
+		rs::extrinsics depth_to_color = dev->get_extrinsics(rs::stream::depth, rs::stream::color);
+		rs::intrinsics color_intrin = dev->get_stream_intrinsics(rs::stream::color);
+		float scale = dev->get_depth_scale();
+		*/
 
 		// Set up a perspective transform in a space that we can rotate by clicking and dragging the mouse
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

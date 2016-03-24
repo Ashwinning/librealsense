@@ -105,11 +105,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unit-tests-live-sr300", "un
 		{1AE4CEB5-9A0B-4B9F-9505-824FD56BB41F} = {1AE4CEB5-9A0B-4B9F-9505-824FD56BB41F}
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deprojection_test", "deprojection_test", "{700EE01C-A123-4135-8586-90408319810E}"
-	ProjectSection(SolutionItems) = preProject
-		deprojection.cpp = deprojection.cpp
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -294,6 +289,5 @@ Global
 		{7F7D0E8C-1614-411C-AD0A-C3D583EC5811} = {9CE5B9D5-05C7-4288-99B3-13ABFBE7B60C}
 		{D17AF4AE-B93F-45CB-9F9F-068FC569B447} = {9CE5B9D5-05C7-4288-99B3-13ABFBE7B60C}
 		{1F7EC2CF-9E68-4273-8F3C-1A15E0142D5F} = {EA2793EE-C590-43D0-A11D-02F93DA139AC}
-		{700EE01C-A123-4135-8586-90408319810E} = {092EA5B3-F345-44A8-AFF9-8F7E5591436C}
 	EndGlobalSection
 EndGlobal

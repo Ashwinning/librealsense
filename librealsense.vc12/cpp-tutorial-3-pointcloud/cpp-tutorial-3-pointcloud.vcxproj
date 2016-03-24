@@ -148,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\examples\cpp-tutorial-3-pointcloud.cpp" />
+    <ClCompile Include="..\deprojection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

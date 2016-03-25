@@ -8,6 +8,7 @@
 //Include the STD stuff we need for IO
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 // Also include GLFW to allow for graphical display
 #define GLFW_INCLUDE_GLU
@@ -68,23 +69,26 @@ char* ReadFile(std::string filePath)
 	}
 }
 
+
+
 std::streampos GetFileSize(std::string filePath)
 {
 	std::cout << "Getting file size" << std::endl;
 	std::ifstream is;
 	is.open(filePath.c_str(), std::ios::binary);
 	is.seekg(0, std::ios::end);
-	std::cout << "File size : " + is.tellg() << std::endl;
 	return is.tellg();
 }
 
 
 char* GetFileSegment(char * colorFile, std::streampos fileSize, int index, int totalSegments)
 {
+	std::cout << "Getting segment \n";
 	char * segment;
-	//int chunk = fileSize / totalSegments;
-	//std::cout << "Chunk size : " + (int)chunk << std::endl;
-	std::memcpy(segment, colorFile, fileSize);
+	int chunkSize = sizeof(uint8_t) * 640 * 480;
+	segment = new char[chunkSize];
+	std::cout << "Chunk allocated (" << chunkSize << " bytes) \n";
+	std::memcpy(segment, colorFile, 304200);
 	return segment;
 }
 
@@ -119,18 +123,19 @@ int main(int argc, char* argv[]) try
 
 	std::cout << "Reading color from : " + colorLocation + "\n";
 
-	std::streampos size = GetFileSize(colorLocation);
+	std::streampos size;	
 
 	//Read File contents for color.
 	colorFile = ReadFile(colorLocation);
 	std::cout << "File read. \n";
 	
 
-	char * frame = GetFileSegment(colorFile, size, 0, 30);
+	char * frame = GetFileSegment(colorFile, size, 1, 30);
 	std::cout << "Got file segment \n";
 	const uint8_t * color_image = (const uint8_t *)frame;
+	std::cout << "Got color_image \n";
 	//const uint8_t * color_image = (const uint8_t *)colorFile;
-
+	
 	// Open a GLFW window to display our output
 	glfwInit();
 	GLFWwindow * win = glfwCreateWindow(640, 480, "ColorViewer", nullptr, nullptr);

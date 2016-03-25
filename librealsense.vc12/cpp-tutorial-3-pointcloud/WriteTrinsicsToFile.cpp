@@ -80,7 +80,7 @@ int main() try
 		float scale = dev->get_depth_scale();
 
 		//write parameters to files
-
+		
 		//write depth intrinsics
 		std::ofstream di_stream("depth_intrinsics.bin", std::ios::binary);
 		di_stream.write((char *)&depth_intrin, sizeof(depth_intrin));

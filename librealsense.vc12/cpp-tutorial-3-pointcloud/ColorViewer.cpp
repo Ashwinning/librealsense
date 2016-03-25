@@ -31,6 +31,7 @@ static void on_cursor_pos(GLFWwindow * win, double x, double y)
 }
 
 
+
 /*
 Accepts a File Path and a pointer.
 Writes the contents of the file to that location in memory.
@@ -41,7 +42,7 @@ ReadFileAndReturnBytes("C:\file.bin", myFile); //Read file at the path to your l
 //Do something with your data.
 delete[] myFile; //delete file from memory.
 */
-static char* ReadFile(std::string filePath)
+char* ReadFile(std::string filePath)
 {
 	std::streampos size;
 	char * memblock;
@@ -65,12 +66,31 @@ static char* ReadFile(std::string filePath)
 	{
 		std::cout << "Unable to open file at " + filePath + "\n";
 	}
-
 }
+
+std::streampos GetFileSize(std::string filePath)
+{
+	std::cout << "Getting file size" << std::endl;
+	std::ifstream is;
+	is.open(filePath.c_str(), std::ios::binary);
+	is.seekg(0, std::ios::end);
+	std::cout << "File size : " + is.tellg() << std::endl;
+	return is.tellg();
+}
+
+
+char* GetFileSegment(char * colorFile, std::streampos fileSize, int index, int totalSegments)
+{
+	char * segment;
+	//int chunk = fileSize / totalSegments;
+	//std::cout << "Chunk size : " + (int)chunk << std::endl;
+	std::memcpy(segment, colorFile, fileSize);
+	return segment;
+}
+
 
 int main(int argc, char* argv[]) try
 {
-
 	bool operationCompleted = false;
 
 	std::cout << " Starting. \n ";
@@ -93,17 +113,23 @@ int main(int argc, char* argv[]) try
 		//ask for the location
 		std::cout << "Please enter a path to a depth file. \n";
 		std::cout << "Use forward slashes '/', or double back slashes '\\'. \n";
-		std::cout << "The corresponding color file will be grabbed automatically. \n";
 		std::cout << "Enter file path : ";
 		std::getline(std::cin, colorLocation);
 	}
 
 	std::cout << "Reading color from : " + colorLocation + "\n";
 
+	std::streampos size = GetFileSize(colorLocation);
+
 	//Read File contents for color.
 	colorFile = ReadFile(colorLocation);
+	std::cout << "File read. \n";
+	
 
-	const uint8_t * color_image = (const uint8_t *)colorFile;
+	char * frame = GetFileSegment(colorFile, size, 0, 30);
+	std::cout << "Got file segment \n";
+	const uint8_t * color_image = (const uint8_t *)frame;
+	//const uint8_t * color_image = (const uint8_t *)colorFile;
 
 	// Open a GLFW window to display our output
 	glfwInit();

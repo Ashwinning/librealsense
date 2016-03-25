@@ -32,6 +32,29 @@ static void on_cursor_pos(GLFWwindow * win, double x, double y)
 
 int main() try
 {
+	// Retrieve camera parameters for mapping between depth and color
+	std::string path = "C:/User/Ashwin/Desktop/RealSense Parameters/";
+
+	//Read all files to pointers
+	char * di;
+	ReadFile(path+"depth_intrinsics.bin", di);
+	char * dtc;
+	ReadFile(path + "depth_to_color.bin", dtc);
+	char * ci;
+	ReadFile(path + "color_intrinsics.bin", ci);
+	char * s;
+	ReadFile(path + "scale.bin", s);
+
+	//Cast each pointer to it's desired type and store it's value
+	rs::intrinsics * depth_intrin_p = reinterpret_cast<rs::intrinsics*>(di);
+	rs::intrinsics depth_intrin = *depth_intrin_p;
+	rs::extrinsics * depth_to_color_p = reinterpret_cast<rs::extrinsics*>(dtc);
+	rs::extrinsics depth_to_color = *depth_to_color_p;
+	rs::intrinsics * color_intrin_p = reinterpret_cast<rs::intrinsics*>(ci);
+	rs::intrinsics color_intrin = *color_intrin_p;
+	float * scale_p = reinterpret_cast<float*>(s);
+	float scale = *scale_p;
+
 	// Open a GLFW window to display our output
 	glfwInit();
 	GLFWwindow * win = glfwCreateWindow(1280, 960, "librealsense tutorial #3", nullptr, nullptr);
@@ -43,37 +66,16 @@ int main() try
 		// Wait for new frame data
 		glfwPollEvents();
 		
-		/*
-		// Retrieve our images
-		const uint16_t * depth_image = (const uint16_t *)dev->get_frame_data(rs::stream::depth);
-		const uint8_t * color_image = (const uint8_t *)dev->get_frame_data(rs::stream::color);
-
-		// Retrieve camera parameters for mapping between depth and color
-		rs::intrinsics depth_intrin = dev->get_stream_intrinsics(rs::stream::depth);
-		rs::extrinsics depth_to_color = dev->get_extrinsics(rs::stream::depth, rs::stream::color);
-		rs::intrinsics color_intrin = dev->get_stream_intrinsics(rs::stream::color);
-		float scale = dev->get_depth_scale();
-		*/
-
-		
 		//Create pointers for depth and color
 		char * depthFile;
 		char * colorFile;
 		//Read File contents for depth and color.
-		ReadFileAndReturnBytes("D:\SXSW Hat Scans\capture-20160314-103304\depth\20160314-103305.dep", depthFile);
-		ReadFileAndReturnBytes("D:\SXSW Hat Scans\capture-20160314-103304\color\20160314-103305.color", colorFile);
+		ReadFile("D:\SXSW Hat Scans\capture-20160314-103304\depth\20160314-103305.dep", depthFile);
+		ReadFile("D:\SXSW Hat Scans\capture-20160314-103304\color\20160314-103305.color", colorFile);
 		
 		// Retrieve images
 		const uint16_t * depth_image = (const uint16_t *)depthFile;
-		const uint8_t * color_image = (const uint8_t *)colorFile;
-
-		/*
-		// Retrieve camera parameters for mapping between depth and color
-		rs::intrinsics depth_intrin = 
-		rs::extrinsics depth_to_color = dev->get_extrinsics(rs::stream::depth, rs::stream::color);
-		rs::intrinsics color_intrin = dev->get_stream_intrinsics(rs::stream::color);
-		float scale = dev->get_depth_scale();
-		*/
+		const uint8_t * color_image = (const uint8_t *)colorFile;		
 
 		// Set up a perspective transform in a space that we can rotate by clicking and dragging the mouse
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -150,7 +152,7 @@ catch (const rs::error & e)
 	//Do something with your data.
 	delete[] myFile; //delete file from memory.
 */
-void ReadFileAndReturnBytes(std::string filePath, char * memblock)
+void ReadFile(std::string filePath, char * memblock)
 {
 	std::streampos size;
 	//the file is open with the ios::ate flag, which means that the get pointer will be positioned at the end of the file. 

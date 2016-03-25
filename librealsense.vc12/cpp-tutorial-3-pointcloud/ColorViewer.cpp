@@ -30,12 +30,6 @@ static void on_cursor_pos(GLFWwindow * win, double x, double y)
 	lastY = y;
 }
 
-std::string myreplace(std::string &s,
-	const std::string &toReplace,
-	const std::string &replaceWith)
-{
-	return(s.replace(s.find(toReplace), toReplace.length(), replaceWith));
-}
 
 /*
 Accepts a File Path and a pointer.
@@ -81,21 +75,18 @@ int main(int argc, char* argv[]) try
 
 	std::cout << " Starting. \n ";
 
-
-
-	//Create pointers for depth and color
-	char * depthFile;
+	//Create pointer for color
 	char * colorFile;
 
-	//Accept depth file location
-	std::string depthLocation;
+	//Accept color file location
+	std::string colorLocation;
 
 	//Handle "Open With" scenario (default program)
 	//if we had more than 1 argument as a command line parameter
 	if (argc > 1)
 	{
-		//set depth location to the 2nd argument (1st is it's own filename)
-		depthLocation = argv[1];
+		//set color location to the 2nd argument (1st is it's own filename)
+		colorLocation = argv[1];
 	}
 	else
 	{
@@ -104,91 +95,33 @@ int main(int argc, char* argv[]) try
 		std::cout << "Use forward slashes '/', or double back slashes '\\'. \n";
 		std::cout << "The corresponding color file will be grabbed automatically. \n";
 		std::cout << "Enter file path : ";
-		std::getline(std::cin, depthLocation);
+		std::getline(std::cin, colorLocation);
 	}
 
-	std::string colorLocation = depthLocation;
-	//replace 'depth' first, so we don't mess 'dep' up
-	colorLocation = myreplace(colorLocation, "depth", "color");
-	colorLocation = myreplace(colorLocation, "dep", "color");
-
-	std::cout << "Reading depth from : " + depthLocation + "\n";
 	std::cout << "Reading color from : " + colorLocation + "\n";
 
-	//Read File contents for depth and color.
-	depthFile = ReadFile(depthLocation);
+	//Read File contents for color.
 	colorFile = ReadFile(colorLocation);
+
+	const uint8_t * color_image = (const uint8_t *)colorFile;
 
 	// Open a GLFW window to display our output
 	glfwInit();
-	GLFWwindow * win = glfwCreateWindow(1280, 960, "librealsense tutorial #3", nullptr, nullptr);
-	glfwSetCursorPosCallback(win, on_cursor_pos);
-	glfwSetMouseButtonCallback(win, on_mouse_button);
+	GLFWwindow * win = glfwCreateWindow(640, 480, "ColorViewer", nullptr, nullptr);
 	glfwMakeContextCurrent(win);
 	while (!glfwWindowShouldClose(win))
 	{
 		// Wait for new frame data
 		glfwPollEvents();
 
-		// Retrieve images
-		const uint16_t * depth_image = (const uint16_t *)depthFile;
-		const uint8_t * color_image = (const uint8_t *)colorFile;
+		glClear(GL_COLOR_BUFFER_BIT);
+		glPixelZoom(1, -1);
 
-		// Set up a perspective transform in a space that we can rotate by clicking and dragging the mouse
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluPerspective(60, (float)1280 / 960, 0.01f, 20.0f);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		gluLookAt(0, 0, 0, 0, 0, 1, 0, -1, 0);
-		glTranslatef(0, 0, +0.5f);
-		glRotated(pitch, 1, 0, 0);
-		glRotated(yaw, 0, 1, 0);
-		glTranslatef(0, 0, -0.5f);
-
-		// We will render our depth data as a set of points in 3D space
-		glPointSize(2);
-		glEnable(GL_DEPTH_TEST);
-		glBegin(GL_POINTS);
-
-		for (int dy = 0; dy<depth_intrin.height; ++dy)
-		{
-			for (int dx = 0; dx<depth_intrin.width; ++dx)
-			{
-				// Retrieve the 16-bit depth value and map it into a depth in meters
-				uint16_t depth_value = depth_image[dy * depth_intrin.width + dx];
-				float depth_in_meters = depth_value * scale;
-
-				// Skip over pixels with a depth value of zero, which is used to indicate no data
-				if (depth_value == 0) continue;
-
-				// Map from pixel coordinates in the depth image to pixel coordinates in the color image
-				rs::float2 depth_pixel = { (float)dx, (float)dy };
-				rs::float3 depth_point = depth_intrin.deproject(depth_pixel, depth_in_meters);
-				rs::float3 color_point = depth_to_color.transform(depth_point);
-				rs::float2 color_pixel = color_intrin.project(color_point);
-
-				// Use the color from the nearest color pixel, or pure white if this point falls outside the color image
-				const int cx = (int)std::round(color_pixel.x), cy = (int)std::round(color_pixel.y);
-				if (cx < 0 || cy < 0 || cx >= color_intrin.width || cy >= color_intrin.height)
-				{
-					glColor3ub(255, 255, 255);
-				}
-				else
-				{
-					glColor3ubv(color_image + (cy * color_intrin.width + cx) * 3);
-				}
-
-				// Emit a vertex at the 3D location of this depth pixel
-				glVertex3f(depth_point.x, depth_point.y, depth_point.z);
-			}
-		}
-		glEnd();
+		// Display color image as RGB triples
+		glRasterPos2f(0, 1);
+		glDrawPixels(640, 480, GL_RGB, GL_UNSIGNED_BYTE,color_image);
 
 		glfwSwapBuffers(win);
-
-		//operationCompleted = true;
 	}
 
 	return EXIT_SUCCESS;
@@ -200,5 +133,3 @@ catch (const rs::error & e)
 	printf("    %s\n", e.what());
 	return EXIT_FAILURE;
 }
-
-

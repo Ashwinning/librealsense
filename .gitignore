@@ -41,3 +41,4 @@ Makefile*
 *-build-*
 librealsense-log.txt
 librealsense.vc12/realsense.VC.opendb
+*.pdb

@@ -52,7 +52,7 @@ int main() try
 	printf("    Firmware version: %s\n", dev->get_firmware_version());
 
 	// Configure depth and color to run with the device's preferred settings
-	dev->enable_stream(rs::stream::depth, rs::preset::best_quality);
+	dev->enable_stream(rs::stream::depth, rs::preset::largest_image);
 	dev->enable_stream(rs::stream::color, rs::preset::best_quality);
 	dev->start();
 
@@ -79,6 +79,42 @@ int main() try
 		rs::intrinsics color_intrin = dev->get_stream_intrinsics(rs::stream::color);
 		float scale = dev->get_depth_scale();
 
+		//Debug intrinsics.
+		std::cout << "================ \n ";
+		std::cout << "Depth Intrinsics \n ";
+		std::cout << "================ \n ";
+		std::cout << " coeffs : " << depth_intrin.coeffs << "\n ";
+		std::cout << " fx : " << depth_intrin.fx << "\n ";
+		std::cout << " fy : " << depth_intrin.fy << "\n ";
+		std::cout << " height : " << depth_intrin.height << "\n ";
+		std::cout << " ppx : " << depth_intrin.ppx << "\n ";
+		std::cout << " ppy  : " << depth_intrin.ppy << "\n ";
+		std::cout << " width  : " << depth_intrin.width << "\n ";
+
+		std::cout << "================ \n ";
+		std::cout << "Depth to Color Extrinsics \n ";
+		std::cout << "================ \n ";
+		std::cout << " rotation  : " << depth_to_color.rotation << "\n ";
+		std::cout << " translation  : " << depth_to_color.translation << "\n ";
+
+		std::cout << "================ \n ";
+		std::cout << "Color Intrinsics \n ";
+		std::cout << "================ \n ";
+		std::cout << " coeffs : " << color_intrin.coeffs << "\n ";
+		std::cout << " fx : " << color_intrin.fx << "\n ";
+		std::cout << " fy : " << color_intrin.fy << "\n ";
+		std::cout << " height : " << color_intrin.height << "\n ";
+		std::cout << " ppx : " << color_intrin.ppx << "\n ";
+		std::cout << " ppy  : " << color_intrin.ppy << "\n ";
+		std::cout << " width  : " << color_intrin.width << "\n ";
+
+		std::cout << "================ \n ";
+		std::cout << "Scale \n ";
+		std::cout << "================ \n ";
+		std::cout << " scale  : " << scale << "\n ";
+
+
+
 		//write parameters to files
 		
 		//write depth intrinsics
@@ -94,7 +130,8 @@ int main() try
 		//(oh Ashwin, why are you writing a float to a file?)
 		//(because screw you internet, that's why!)
 		std::ofstream s_stream("scale.bin", std::ios::binary);
-		s_stream.write((char *)&scale, sizeof(color_intrin));
+		s_stream.write((char *)&scale, sizeof(scale));
+		
 
 		//dunzos
 		trinsicsWritten = true;

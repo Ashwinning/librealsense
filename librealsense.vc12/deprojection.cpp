@@ -30,20 +30,60 @@ static void on_cursor_pos(GLFWwindow * win, double x, double y)
 	lastY = y;
 }
 
+/*
+Accepts a File Path and a pointer.
+Writes the contents of the file to that location in memory.
+
+Usage :
+char * myFile; //Create pointer to store your file's location in memory
+ReadFileAndReturnBytes("C:\file.bin", myFile); //Read file at the path to your location in memory
+//Do something with your data.
+delete[] myFile; //delete file from memory.
+*/
+static char* ReadFile(std::string filePath)
+{
+	std::streampos size;
+	char * memblock;
+	//the file is open with the ios::ate flag, which means that the get pointer will be positioned at the end of the file. 
+	//This way, when we call to member tellg(), we will directly obtain the size of the file.
+	std::ifstream file(filePath, std::ios::in | std::ios::binary | std::ios::ate);
+	if (file.is_open())
+	{
+		size = file.tellg();
+		//request the allocation of a memory block large enough to hold the entire file
+		memblock = new char[size];
+		//set the get position at the beginning of the file (we opened the file with this pointer at the end)
+		file.seekg(0, std::ios::beg);
+		//read the entire file
+		file.read(memblock, size);
+		//close the file
+		file.close();
+		return memblock;
+	}
+	else
+	{
+		std::cout << "Unable to open file at " + filePath + "\n";
+	}
+
+}
+
 int main() try
 {
+
+	bool operationCompleted = false;
+
+	std::cout << " Starting. \n ";
+
 	// Retrieve camera parameters for mapping between depth and color
-	std::string path = "C:/User/Ashwin/Desktop/RealSense Parameters/";
+	std::string path = "C:\\Users\\Ashwin\\Desktop\\RealSense Parameters\\";
 
 	//Read all files to pointers
-	char * di;
-	ReadFile(path+"depth_intrinsics.bin", di);
-	char * dtc;
-	ReadFile(path + "depth_to_color.bin", dtc);
-	char * ci;
-	ReadFile(path + "color_intrinsics.bin", ci);
-	char * s;
-	ReadFile(path + "scale.bin", s);
+	char * di =	ReadFile(path+"depth_intrinsics.bin");
+	char * dtc = ReadFile(path + "depth_to_color.bin");
+	char * ci = ReadFile(path + "color_intrinsics.bin");
+	char * s = ReadFile(path + "scale.bin");
+
+	std::cout << " files read in fine \n ";
 
 	//Cast each pointer to it's desired type and store it's value
 	rs::intrinsics * depth_intrin_p = reinterpret_cast<rs::intrinsics*>(di);
@@ -55,6 +95,15 @@ int main() try
 	float * scale_p = reinterpret_cast<float*>(s);
 	float scale = *scale_p;
 
+	std::cout << " pointers cast successfully \n ";
+
+	//Create pointers for depth and color
+	char * depthFile;
+	char * colorFile;
+	//Read File contents for depth and color.
+	depthFile = ReadFile("D://SXSW Hat Scans//capture-20160314-103304//depth//20160314-103509.dep");
+	colorFile = ReadFile("D:/SXSW Hat Scans/capture-20160314-103304/color/20160314-103509.color");
+
 	// Open a GLFW window to display our output
 	glfwInit();
 	GLFWwindow * win = glfwCreateWindow(1280, 960, "librealsense tutorial #3", nullptr, nullptr);
@@ -65,14 +114,7 @@ int main() try
 	{
 		// Wait for new frame data
 		glfwPollEvents();
-		
-		//Create pointers for depth and color
-		char * depthFile;
-		char * colorFile;
-		//Read File contents for depth and color.
-		ReadFile("D:\SXSW Hat Scans\capture-20160314-103304\depth\20160314-103305.dep", depthFile);
-		ReadFile("D:\SXSW Hat Scans\capture-20160314-103304\color\20160314-103305.color", colorFile);
-		
+				
 		// Retrieve images
 		const uint16_t * depth_image = (const uint16_t *)depthFile;
 		const uint8_t * color_image = (const uint8_t *)colorFile;		
@@ -130,6 +172,8 @@ int main() try
 		glEnd();
 
 		glfwSwapBuffers(win);
+
+		//operationCompleted = true;
 	}
 
 	return EXIT_SUCCESS;
@@ -142,37 +186,3 @@ catch (const rs::error & e)
 	return EXIT_FAILURE;
 }
 
-/*
-	Accepts a File Path and a pointer.
-	Writes the contents of the file to that location in memory.
-
-	Usage :
-	char * myFile; //Create pointer to store your file's location in memory
-	ReadFileAndReturnBytes("C:\file.bin", myFile); //Read file at the path to your location in memory
-	//Do something with your data.
-	delete[] myFile; //delete file from memory.
-*/
-void ReadFile(std::string filePath, char * memblock)
-{
-	std::streampos size;
-	//the file is open with the ios::ate flag, which means that the get pointer will be positioned at the end of the file. 
-	//This way, when we call to member tellg(), we will directly obtain the size of the file.
-	std::ifstream file(filePath, std::ios::in | std::ios::binary | std::ios::ate);
-	if (file.is_open())
-	{
-		size = file.tellg();
-		//request the allocation of a memory block large enough to hold the entire file
-		memblock = new char[size];
-		//set the get position at the beginning of the file (we opened the file with this pointer at the end)
-		file.seekg(0, std::ios::beg);
-		//read the entire file
-		file.read(memblock, size);
-		//close the file
-		file.close();
-	}
-	else
-	{
-		std::cout << "Unable to open file";
-	} 
-	
-}

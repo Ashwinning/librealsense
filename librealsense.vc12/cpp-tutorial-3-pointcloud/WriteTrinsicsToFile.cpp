@@ -56,8 +56,7 @@ int main() try
 	dev->enable_stream(rs::stream::color, rs::preset::best_quality);
 	dev->start();
 
-	bool trinsicsWritten;
-
+	bool trinsicsWritten = false;
 	// Open a GLFW window to display our output
 	glfwInit();
 	GLFWwindow * win = glfwCreateWindow(1280, 960, "WriteTrinsicsToFile", nullptr, nullptr);
@@ -82,7 +81,23 @@ int main() try
 
 		//write parameters to files
 
+		//write depth intrinsics
+		std::ofstream di_stream("depth_intrinsics.bin", std::ios::binary);
+		di_stream.write((char *)&depth_intrin, sizeof(depth_intrin));
+		//write depth to color extrinsics
+		std::ofstream dtc_stream("depth_to_color.bin", std::ios::binary);
+		dtc_stream.write((char *)&depth_to_color, sizeof(depth_to_color));
+		//write color intrinsics
+		std::ofstream ci_stream("color_intrinsics.bin", std::ios::binary);
+		ci_stream.write((char *)&color_intrin, sizeof(color_intrin));
+		//write scale
+		//(oh Ashwin, why are you writing a float to a file?)
+		//(because screw you internet, that's why!)
+		std::ofstream s_stream("scale.bin", std::ios::binary);
+		s_stream.write((char *)&scale, sizeof(color_intrin));
 
+		//dunzos
+		trinsicsWritten = true;
 
 		glEnd();
 
@@ -98,3 +113,5 @@ catch (const rs::error & e)
 	printf("    %s\n", e.what());
 	return EXIT_FAILURE;
 }
+
+

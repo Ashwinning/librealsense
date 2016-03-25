@@ -147,7 +147,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\examples\cpp-tutorial-3-pointcloud.cpp" />
     <ClCompile Include="WriteTrinsicsToFile.cpp" />
   </ItemGroup>
   <ItemGroup>

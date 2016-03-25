@@ -4,6 +4,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WriteTrinsicsToFile.cpp" />
+    <ClCompile Include="..\deprojection.cpp" />
   </ItemGroup>
 </Project>

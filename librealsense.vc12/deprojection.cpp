@@ -30,6 +30,13 @@ static void on_cursor_pos(GLFWwindow * win, double x, double y)
 	lastY = y;
 }
 
+std::string myreplace(std::string &s,
+	const std::string &toReplace,
+	const std::string &replaceWith)
+{
+	return(s.replace(s.find(toReplace), toReplace.length(), replaceWith));
+}
+
 /*
 Accepts a File Path and a pointer.
 Writes the contents of the file to that location in memory.
@@ -67,7 +74,7 @@ static char* ReadFile(std::string filePath)
 
 }
 
-int main() try
+int main(int argc, char* argv[]) try
 {
 
 	bool operationCompleted = false;
@@ -83,7 +90,7 @@ int main() try
 	char * ci = ReadFile(path + "color_intrinsics.bin");
 	char * s = ReadFile(path + "scale.bin");
 
-	std::cout << " files read in fine \n ";
+	std::cout << " All realsense parameters (intrinsics, extrinsics, scale) loaded. \n ";
 
 	//Cast each pointer to it's desired type and store it's value
 	rs::intrinsics * depth_intrin_p = reinterpret_cast<rs::intrinsics*>(di);
@@ -95,14 +102,43 @@ int main() try
 	float * scale_p = reinterpret_cast<float*>(s);
 	float scale = *scale_p;
 
-	std::cout << " pointers cast successfully \n ";
+	std::cout << " Byte array pointers cast successfully. \n ";
 
 	//Create pointers for depth and color
 	char * depthFile;
 	char * colorFile;
+
+	//Accept depth file location
+	std::string depthLocation;
+
+	//Handle "Open With" scenario (default program)
+	//if we had more than 1 argument as a command line parameter
+	if (argc > 1)
+	{
+		//set depth location to the 2nd argument (1st is it's own filename)
+		depthLocation = argv[1];
+	}
+	else
+	{
+		//ask for the location
+		std::cout << "Please enter a path to a depth file. \n";
+		std::cout << "Use forward slashes '/', or double back slashes '\\'. \n";
+		std::cout << "The corresponding color file will be grabbed automatically. \n";
+		std::cout << "Enter file path : ";
+		std::getline(std::cin, depthLocation);
+	}
+	
+	std::string colorLocation = depthLocation;
+	//replace 'depth' first, so we don't mess 'dep' up
+	colorLocation = myreplace(colorLocation, "depth", "color");
+	colorLocation = myreplace(colorLocation, "dep", "color");
+
+	std::cout << "Reading depth from : " + depthLocation + "\n";
+	std::cout << "Reading color from : " + colorLocation + "\n";
+
 	//Read File contents for depth and color.
-	depthFile = ReadFile("D://SXSW Hat Scans//capture-20160314-103304//depth//20160314-103509.dep");
-	colorFile = ReadFile("D:/SXSW Hat Scans/capture-20160314-103304/color/20160314-103509.color");
+	depthFile = ReadFile(depthLocation);
+	colorFile = ReadFile(colorLocation);
 
 	// Open a GLFW window to display our output
 	glfwInit();
